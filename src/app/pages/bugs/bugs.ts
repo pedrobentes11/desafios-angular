@@ -6,6 +6,8 @@ import {
   signal,
 } from '@angular/core';
 import { RouterLink } from '@angular/router';
+import { LucideAngularModule } from 'lucide-angular';
+import { APP_ICONS } from '../../icons';
 import { BugsService } from '../../services/bugs.service';
 import { ScoreService } from '../../services/score.service';
 import { BugChallenge, Category } from '../../models/interfaces';
@@ -17,12 +19,15 @@ const CATEGORY_LABELS: Record<Category, string> = {
   'data-binding': 'Data Binding',
   http: 'HTTP',
   httpclient: 'HttpClient',
+  rxjs: 'RxJS',
+  signals: 'Signals',
+  'angular-core': 'Angular Core',
 };
 
 @Component({
   selector: 'app-bugs',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [RouterLink],
+  imports: [RouterLink, LucideAngularModule],
   templateUrl: './bugs.html',
   styleUrl: './bugs.scss',
 })
@@ -30,6 +35,7 @@ export class BugsComponent {
   private bugsService = inject(BugsService);
   private scoreService = inject(ScoreService);
 
+  readonly icons = APP_ICONS;
   readonly categoryLabels = CATEGORY_LABELS;
   readonly allChallenges = this.bugsService.getAll();
 
@@ -42,7 +48,7 @@ export class BugsComponent {
   readonly completedIds = signal<Set<number>>(new Set());
 
   readonly challengesByCategory = computed(() => {
-    const categories: Category[] = ['promises', 'data-binding', 'http', 'httpclient'];
+    const categories: Category[] = ['promises', 'data-binding', 'http', 'httpclient', 'rxjs', 'signals', 'angular-core'];
     return categories.map((cat) => ({
       category: cat,
       label: CATEGORY_LABELS[cat],

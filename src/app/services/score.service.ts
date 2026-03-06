@@ -14,10 +14,13 @@ const CATEGORY_LABELS: Record<Category, string> = {
   'data-binding': 'Data Binding',
   http: 'HTTP',
   httpclient: 'HttpClient',
+  rxjs: 'RxJS',
+  signals: 'Signals',
+  'angular-core': 'Angular Core',
 };
 
 function buildInitialScore(): UserScore {
-  const categories: Category[] = ['promises', 'data-binding', 'http', 'httpclient'];
+  const categories: Category[] = ['promises', 'data-binding', 'http', 'httpclient', 'rxjs', 'signals', 'angular-core'];
   return {
     totalCorrect: 0,
     totalIncorrect: 0,

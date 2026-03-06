@@ -420,6 +420,286 @@ export class BuscaService {
       hint: 'Concatenar params manualmente pode gerar problemas com caracteres especiais. O HttpClient tem suporte nativo para isso.',
       bugDescription: 'Concatenar manualmente não faz encoding correto de caracteres especiais (ex: `&`, `=`, espaços). Use a opção `params` do HttpClient para encoding automático e seguro.',
     },
+
+    // ─── RxJS ──────────────────────────────────────────────────
+    {
+      id: 15,
+      category: 'rxjs',
+      title: 'Memory leak: subscription não cancelada',
+      description: 'Este componente Angular tem um bug grave de memory leak. Você consegue identificar?',
+      buggyCode: `@Component({ /* ... */ })
+export class NotificacoesComponent implements OnInit {
+  private notificacoes$ = inject(NotificacaoService).stream$;
+  mensagens = signal<string[]>([]);
+
+  ngOnInit() {
+    this.notificacoes$.subscribe(msg => {
+      this.mensagens.update(m => [...m, msg]);
+    });
+  }
+}`,
+      fixedCode: `@Component({ /* ... */ })
+export class NotificacoesComponent implements OnInit, OnDestroy {
+  private notificacoes$ = inject(NotificacaoService).stream$;
+  private destroy$ = new Subject<void>();
+  mensagens = signal<string[]>([]);
+
+  ngOnInit() {
+    this.notificacoes$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(msg => {
+        this.mensagens.update(m => [...m, msg]);
+      });
+  }
+
+  ngOnDestroy() {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+}`,
+      hint: 'O que acontece com a subscription quando o componente é destruído?',
+      bugDescription: 'A subscription nunca é cancelada. Quando o componente é destruído, o Observable continua emitindo e tentando atualizar um componente que não existe mais. Use `takeUntil` + Subject ou `takeUntilDestroyed()`.',
+    },
+    {
+      id: 16,
+      category: 'rxjs',
+      title: 'switchMap vs mergeMap na busca',
+      description: 'Esta busca com autocomplete pode exibir resultados desatualizados. Qual é o problema?',
+      buggyCode: `@Component({ /* ... */ })
+export class BuscaComponent {
+  private http = inject(HttpClient);
+  resultados = signal<string[]>([]);
+
+  readonly termoBusca = signal('');
+
+  constructor() {
+    toObservable(this.termoBusca).pipe(
+      debounceTime(300),
+      mergeMap(termo => this.http.get<string[]>(\`/api/busca?q=\${termo}\`))
+    ).subscribe(res => this.resultados.set(res));
+  }
+}`,
+      fixedCode: `@Component({ /* ... */ })
+export class BuscaComponent {
+  private http = inject(HttpClient);
+  resultados = signal<string[]>([]);
+
+  readonly termoBusca = signal('');
+
+  constructor() {
+    toObservable(this.termoBusca).pipe(
+      debounceTime(300),
+      switchMap(termo => this.http.get<string[]>(\`/api/busca?q=\${termo}\`))
+    ).subscribe(res => this.resultados.set(res));
+  }
+}`,
+      hint: 'Se o usuário digita rápido, múltiplas requisições são disparadas. Qual operador cancela a requisição anterior?',
+      bugDescription: '`mergeMap` mantém todas as requisições em paralelo. Se uma anterior demorar mais, pode substituir um resultado novo por um antigo. `switchMap` cancela a requisição anterior ao receber um novo termo.',
+    },
+    {
+      id: 17,
+      category: 'rxjs',
+      title: 'Subject usado sem completar',
+      description: 'Este serviço usa um Subject para eventos mas tem um problema de design. Encontre o bug.',
+      buggyCode: `@Injectable({ providedIn: 'root' })
+export class EventoService {
+  private _eventos = new Subject<string>();
+  readonly eventos$ = this._eventos.asObservable();
+
+  emitir(evento: string): void {
+    this._eventos.next(evento);
+    this._eventos.complete(); // encerra após 1 evento
+  }
+}`,
+      fixedCode: `@Injectable({ providedIn: 'root' })
+export class EventoService {
+  private _eventos = new Subject<string>();
+  readonly eventos$ = this._eventos.asObservable();
+
+  emitir(evento: string): void {
+    this._eventos.next(evento);
+    // NÃO chamar complete() se quiser emitir múltiplos eventos
+  }
+
+  // Opcional: método para encerrar o stream quando o serviço for destruído
+  encerrar(): void {
+    this._eventos.complete();
+  }
+}`,
+      hint: 'O que acontece com um Subject após chamar `.complete()`?',
+      bugDescription: 'Chamar `.complete()` encerra o Subject permanentemente. Qualquer chamada subsequente a `emitir()` não terá efeito porque Subjects completos não aceitam novos valores.',
+    },
+
+    // ─── SIGNALS ───────────────────────────────────────────────
+    {
+      id: 18,
+      category: 'signals',
+      title: 'Signal mutado diretamente',
+      description: 'Este componente tenta atualizar uma lista via signal, mas a UI não atualiza. Ache o bug.',
+      buggyCode: `@Component({
+  template: \`
+    @for (item of itens(); track item.id) {
+      <li>{{ item.nome }}</li>
+    }
+    <button (click)="adicionar()">Adicionar</button>
+  \`
+})
+export class ListaComponent {
+  itens = signal<{ id: number; nome: string }[]>([]);
+
+  adicionar() {
+    this.itens().push({ id: Date.now(), nome: 'Novo Item' });
+  }
+}`,
+      fixedCode: `@Component({
+  template: \`
+    @for (item of itens(); track item.id) {
+      <li>{{ item.nome }}</li>
+    }
+    <button (click)="adicionar()">Adicionar</button>
+  \`
+})
+export class ListaComponent {
+  itens = signal<{ id: number; nome: string }[]>([]);
+
+  adicionar() {
+    this.itens.update(lista => [...lista, { id: Date.now(), nome: 'Novo Item' }]);
+  }
+}`,
+      hint: 'Signals precisam ser notificados de mudanças. Mutação direta no array não gera notificação.',
+      bugDescription: '`this.itens().push()` muta o array internamente sem notificar o signal. A UI não detecta a mudança. Use `update` com uma nova referência de array (`[...lista, novoItem]`).',
+    },
+    {
+      id: 19,
+      category: 'signals',
+      title: 'computed() com efeito colateral',
+      description: 'Este computed está fazendo algo que não deveria. Encontre o problema.',
+      buggyCode: `@Component({ /* ... */ })
+export class PedidoComponent {
+  private pedidoService = inject(PedidoService);
+  quantidade = signal(1);
+  preco = signal(50);
+
+  // Recalcula o total e salva no servidor
+  total = computed(() => {
+    const t = this.quantidade() * this.preco();
+    this.pedidoService.salvarRascunho(t); // salva no servidor
+    return t;
+  });
+}`,
+      fixedCode: `@Component({ /* ... */ })
+export class PedidoComponent {
+  private pedidoService = inject(PedidoService);
+  quantidade = signal(1);
+  preco = signal(50);
+
+  // Apenas computa, sem efeito colateral
+  total = computed(() => this.quantidade() * this.preco());
+
+  constructor() {
+    // Efeitos colaterais ficam no effect()
+    effect(() => {
+      this.pedidoService.salvarRascunho(this.total());
+    });
+  }
+}`,
+      hint: '`computed()` deve ser uma função pura. O que fazer quando se precisa de efeitos colaterais reativos?',
+      bugDescription: '`computed()` deve ser puro — apenas derivar um valor. Efeitos colaterais (chamadas de API, logs, DOM) devem ir em `effect()`. Um computed com side effects pode executar múltiplas vezes de forma imprevisível.',
+    },
+    {
+      id: 20,
+      category: 'signals',
+      title: 'toSignal() sem contexto de injeção',
+      description: 'Este código tenta converter um Observable em Signal mas gera erro. Qual é o problema?',
+      buggyCode: `@Component({ /* ... */ })
+export class ProdutosComponent {
+  private http = inject(HttpClient);
+
+  // Chamado de fora do construtor
+  carregarProdutos() {
+    this.produtos = toSignal(
+      this.http.get<Produto[]>('/api/produtos')
+    );
+  }
+
+  produtos: Signal<Produto[] | undefined> | undefined;
+}`,
+      fixedCode: `@Component({ /* ... */ })
+export class ProdutosComponent {
+  private http = inject(HttpClient);
+
+  // toSignal() deve ser chamado no contexto de injeção (construtor ou campo)
+  readonly produtos = toSignal(
+    this.http.get<Produto[]>('/api/produtos'),
+    { initialValue: [] }
+  );
+}`,
+      hint: '`toSignal()` requer um contexto de injeção ativo. Onde esse contexto existe?',
+      bugDescription: '`toSignal()` precisa ser chamado em um contexto de injeção (construtor, campo de classe, ou usando `runInInjectionContext`). Chamá-lo em um método comum fora do construtor gera `NG0203: toSignal() can only be used within an injection context`.',
+    },
+
+    // ─── ANGULAR CORE ──────────────────────────────────────────
+    {
+      id: 21,
+      category: 'angular-core',
+      title: 'OnPush com objeto mutado',
+      description: 'Com ChangeDetection.OnPush, a UI não atualiza ao modificar o objeto. Ache o bug.',
+      buggyCode: `@Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  template: \`<p>{{ usuario.nome }}</p>\`
+})
+export class UsuarioComponent {
+  usuario = { id: 1, nome: 'Ana' };
+
+  atualizar() {
+    this.usuario.nome = 'Bruno'; // muta o objeto existente
+  }
+}`,
+      fixedCode: `@Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  template: \`<p>{{ usuario().nome }}</p>\`
+})
+export class UsuarioComponent {
+  usuario = signal({ id: 1, nome: 'Ana' });
+
+  atualizar() {
+    this.usuario.update(u => ({ ...u, nome: 'Bruno' })); // nova referência
+  }
+}`,
+      hint: 'Com `OnPush`, o Angular compara referências de objetos. O que precisa mudar para ele detectar a alteração?',
+      bugDescription: 'Com `OnPush`, mutar uma propriedade de um objeto não muda a referência do objeto, então o Angular não detecta a mudança. Use signals ou crie um novo objeto (`{ ...usuario, nome: "Bruno" }`).',
+    },
+    {
+      id: 22,
+      category: 'angular-core',
+      title: 'Lógica pesada no construtor',
+      description: 'Este componente tem uma prática ruim no construtor. Identifique e corrija.',
+      buggyCode: `@Component({ /* ... */ })
+export class RelatorioComponent {
+  dados: Dado[] = [];
+
+  constructor(private relatorioService: RelatorioService) {
+    // Carrega dados no construtor
+    this.relatorioService.getDados().subscribe(d => {
+      this.dados = d;
+    });
+  }
+}`,
+      fixedCode: `@Component({ /* ... */ })
+export class RelatorioComponent implements OnInit {
+  private relatorioService = inject(RelatorioService);
+  dados = signal<Dado[]>([]);
+
+  ngOnInit() {
+    // Lógica de inicialização no ngOnInit
+    this.relatorioService.getDados().subscribe(d => {
+      this.dados.set(d);
+    });
+  }
+}`,
+      hint: 'Qual hook de ciclo de vida é o lugar correto para lógica de inicialização em Angular?',
+      bugDescription: 'O construtor deve ser usado apenas para injeção de dependências. Lógica de negócio, chamadas HTTP e subscriptions devem ficar no `ngOnInit`, que é executado após o Angular configurar os inputs do componente.',
+    },
   ];
 
   getAll(): BugChallenge[] {
@@ -434,3 +714,4 @@ export class BuscaService {
     return this.challenges.filter((c) => c.category === category);
   }
 }
+

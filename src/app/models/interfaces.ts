@@ -1,4 +1,4 @@
-export type Category = 'promises' | 'data-binding' | 'http' | 'httpclient';
+export type Category = 'promises' | 'data-binding' | 'http' | 'httpclient' | 'rxjs' | 'signals' | 'angular-core';
 
 export interface QuizQuestion {
   id: number;

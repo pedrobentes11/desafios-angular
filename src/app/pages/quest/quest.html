@@ -1,18 +1,25 @@
-<div class="quest">
+﻿<div class="quest">
 
   <!-- CONFIG -->
   @if (state() === 'config') {
     <section class="quest__config" aria-labelledby="quest-title">
       <header class="quest__header">
-        <a routerLink="/home" class="back-link" aria-label="Voltar para o início">← Início</a>
+        <a routerLink="/home" class="back-link" aria-label="Voltar para o inÃ­cio">
+          <lucide-icon [img]="icons.ArrowLeft" [size]="16" aria-hidden="true"></lucide-icon>
+          InÃ­cio
+        </a>
         <h1 id="quest-title" class="quest__title">
-          <span aria-hidden="true">🎯</span> Quiz
+          <lucide-icon [img]="icons.Target" [size]="28" aria-hidden="true"></lucide-icon>
+          Quiz
         </h1>
         <p class="quest__subtitle">Responda perguntas sobre Angular e JavaScript</p>
       </header>
 
       <div class="config-card">
-        <label for="categoria" class="config-card__label">Escolha a categoria</label>
+        <label for="categoria" class="config-card__label">
+          <lucide-icon [img]="icons.Layers" [size]="16" aria-hidden="true"></lucide-icon>
+          Escolha a categoria
+        </label>
         <select
           id="categoria"
           class="config-card__select"
@@ -24,10 +31,12 @@
         </select>
 
         <p class="config-card__info">
-          Serão selecionadas até <strong>10 perguntas</strong> aleatórias da categoria escolhida.
+          <lucide-icon [img]="icons.Info" [size]="14" aria-hidden="true"></lucide-icon>
+          SerÃ£o selecionadas atÃ© <strong>10 perguntas</strong> aleatÃ³rias da categoria escolhida.
         </p>
 
         <button class="btn-primary" (click)="startQuiz()" type="button">
+          <lucide-icon [img]="icons.Play" [size]="16" aria-hidden="true"></lucide-icon>
           Iniciar Quiz
         </button>
       </div>
@@ -39,7 +48,10 @@
     @if (currentQuestion(); as q) {
       <section class="quest__playing" aria-labelledby="question-heading">
         <header class="quest__playing-header">
-          <a routerLink="/home" class="back-link" aria-label="Voltar para o início">← Início</a>
+          <a routerLink="/home" class="back-link" aria-label="Voltar para o inÃ­cio">
+            <lucide-icon [img]="icons.ArrowLeft" [size]="16" aria-hidden="true"></lucide-icon>
+            InÃ­cio
+          </a>
           <div class="quest__progress-info" aria-live="polite">
             <span class="quest__counter">{{ currentIndex() + 1 }} / {{ questions().length }}</span>
             <span class="quest__category-tag">{{ q.category }}</span>
@@ -54,7 +66,10 @@
         </div>
 
         <div class="question-card">
-          <h2 id="question-heading" class="question-card__text">{{ q.question }}</h2>
+          <h2 id="question-heading" class="question-card__text">
+            <lucide-icon [img]="icons.HelpCircle" [size]="20" class="question-card__icon" aria-hidden="true"></lucide-icon>
+            {{ q.question }}
+          </h2>
 
           <div class="options" role="radiogroup" [attr.aria-labelledby]="'question-heading'">
             @for (opt of q.options; track $index) {
@@ -66,14 +81,14 @@
                 type="button"
                 role="radio"
                 [attr.aria-checked]="selectedOption() === $index"
-                [attr.aria-label]="'Opção ' + ($index + 1) + ': ' + opt">
+                [attr.aria-label]="'OpÃ§Ã£o ' + ($index + 1) + ': ' + opt">
                 <span class="option__letter" aria-hidden="true">{{ ['A', 'B', 'C', 'D'][$index] }}</span>
                 <span class="option__text">{{ opt }}</span>
                 @if (showFeedback() && $index === q.correctIndex) {
-                  <span class="option__icon" aria-hidden="true">✓</span>
+                  <lucide-icon [img]="icons.CheckCircle" class="option__icon" [size]="18" aria-hidden="true"></lucide-icon>
                 }
                 @if (showFeedback() && $index === selectedOption() && $index !== q.correctIndex) {
-                  <span class="option__icon" aria-hidden="true">✗</span>
+                  <lucide-icon [img]="icons.XCircle" class="option__icon" [size]="18" aria-hidden="true"></lucide-icon>
                 }
               </button>
             }
@@ -86,20 +101,32 @@
               [disabled]="selectedOption() === null"
               type="button"
               [attr.aria-disabled]="selectedOption() === null">
+              <lucide-icon [img]="icons.Check" [size]="16" aria-hidden="true"></lucide-icon>
               Confirmar Resposta
             </button>
           }
 
           @if (showFeedback()) {
-            <div class="feedback" [class.feedback--correct]="selectedOption() === q.correctIndex"
+            <div class="feedback"
+              [class.feedback--correct]="selectedOption() === q.correctIndex"
               [class.feedback--wrong]="selectedOption() !== q.correctIndex"
               role="alert" aria-live="assertive">
               <p class="feedback__status">
-                {{ selectedOption() === q.correctIndex ? '✅ Correto!' : '❌ Incorreto' }}
+                @if (selectedOption() === q.correctIndex) {
+                  <lucide-icon [img]="icons.CheckCircle" [size]="18" aria-hidden="true"></lucide-icon>
+                  Correto!
+                } @else {
+                  <lucide-icon [img]="icons.XCircle" [size]="18" aria-hidden="true"></lucide-icon>
+                  Incorreto
+                }
               </p>
-              <p class="feedback__explanation">{{ q.explanation }}</p>
+              <p class="feedback__explanation">
+                <lucide-icon [img]="icons.Info" [size]="14" aria-hidden="true"></lucide-icon>
+                {{ q.explanation }}
+              </p>
               <button class="btn-secondary" (click)="nextQuestion()" type="button">
-                {{ isLast() ? 'Ver Resultado' : 'Próxima →' }}
+                {{ isLast() ? 'Ver Resultado' : 'PrÃ³xima' }}
+                <lucide-icon [img]="icons.ChevronRight" [size]="16" aria-hidden="true"></lucide-icon>
               </button>
             </div>
           }
@@ -112,8 +139,14 @@
   @if (state() === 'finished') {
     <section class="quest__result" aria-labelledby="result-heading">
       <header class="quest__header">
-        <a routerLink="/home" class="back-link" aria-label="Voltar para o início">← Início</a>
-        <h1 id="result-heading" class="quest__title">Resultado</h1>
+        <a routerLink="/home" class="back-link" aria-label="Voltar para o inÃ­cio">
+          <lucide-icon [img]="icons.ArrowLeft" [size]="16" aria-hidden="true"></lucide-icon>
+          InÃ­cio
+        </a>
+        <h1 id="result-heading" class="quest__title">
+          <lucide-icon [img]="icons.Trophy" [size]="28" aria-hidden="true"></lucide-icon>
+          Resultado
+        </h1>
       </header>
 
       <div class="result-summary">
@@ -126,42 +159,60 @@
 
         <div class="result-summary__stats">
           <span class="result-summary__stat result-summary__stat--correct">
-            ✓ {{ correctCount() }} corretas
+            <lucide-icon [img]="icons.CheckCircle" [size]="16" aria-hidden="true"></lucide-icon>
+            {{ correctCount() }} corretas
           </span>
           <span class="result-summary__stat result-summary__stat--wrong">
-            ✗ {{ incorrectCount() }} erradas
+            <lucide-icon [img]="icons.XCircle" [size]="16" aria-hidden="true"></lucide-icon>
+            {{ incorrectCount() }} erradas
           </span>
         </div>
       </div>
 
-      <!-- REVISÃO -->
+      <!-- REVISÃƒO -->
       <div class="result-review">
-        <h2 class="result-review__title">Revisão das Perguntas</h2>
+        <h2 class="result-review__title">
+          <lucide-icon [img]="icons.BookOpen" [size]="18" aria-hidden="true"></lucide-icon>
+          RevisÃ£o das Perguntas
+        </h2>
         @for (r of results(); track r.question.id) {
           <div class="review-item" [class.review-item--correct]="r.correct" [class.review-item--wrong]="!r.correct">
             <div class="review-item__header">
-              <span class="review-item__icon" aria-hidden="true">{{ r.correct ? '✅' : '❌' }}</span>
+              @if (r.correct) {
+                <lucide-icon [img]="icons.CheckCircle" [size]="16" aria-hidden="true"></lucide-icon>
+              } @else {
+                <lucide-icon [img]="icons.XCircle" [size]="16" aria-hidden="true"></lucide-icon>
+              }
               <span class="review-item__category">{{ r.question.category }}</span>
             </div>
             <p class="review-item__question">{{ r.question.question }}</p>
             @if (!r.correct) {
               <p class="review-item__wrong-answer">
+                <lucide-icon [img]="icons.X" [size]="13" aria-hidden="true"></lucide-icon>
                 <strong>Sua resposta:</strong> {{ r.question.options[r.selected] }}
               </p>
               <p class="review-item__correct-answer">
+                <lucide-icon [img]="icons.Check" [size]="13" aria-hidden="true"></lucide-icon>
                 <strong>Correto:</strong> {{ r.question.options[r.question.correctIndex] }}
               </p>
             }
-            <p class="review-item__explanation">{{ r.question.explanation }}</p>
+            <p class="review-item__explanation">
+              <lucide-icon [img]="icons.Info" [size]="13" aria-hidden="true"></lucide-icon>
+              {{ r.question.explanation }}
+            </p>
           </div>
         }
       </div>
 
       <div class="result-actions">
         <button class="btn-primary" (click)="restart()" type="button">
+          <lucide-icon [img]="icons.RefreshCw" [size]="16" aria-hidden="true"></lucide-icon>
           Jogar Novamente
         </button>
-        <a routerLink="/home" class="btn-secondary">Ver Dashboard</a>
+        <a routerLink="/home" class="btn-secondary">
+          <lucide-icon [img]="icons.BarChart2" [size]="16" aria-hidden="true"></lucide-icon>
+          Ver Dashboard
+        </a>
       </div>
     </section>
   }

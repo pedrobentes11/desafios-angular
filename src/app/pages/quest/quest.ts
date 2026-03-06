@@ -6,9 +6,11 @@ import {
   signal,
 } from '@angular/core';
 import { RouterLink } from '@angular/router';
+import { LucideAngularModule } from 'lucide-angular';
 import { QuizService } from '../../services/quiz.service';
 import { ScoreService } from '../../services/score.service';
 import { QuizQuestion, Category } from '../../models/interfaces';
+import { APP_ICONS } from '../../icons';
 
 type QuizState = 'config' | 'playing' | 'finished';
 
@@ -18,12 +20,15 @@ const CATEGORY_OPTIONS: { value: Category | 'all'; label: string }[] = [
   { value: 'data-binding', label: 'Data Binding' },
   { value: 'http', label: 'HTTP' },
   { value: 'httpclient', label: 'HttpClient' },
+  { value: 'rxjs', label: 'RxJS' },
+  { value: 'signals', label: 'Signals' },
+  { value: 'angular-core', label: 'Angular Core' },
 ];
 
 @Component({
   selector: 'app-quest',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [RouterLink],
+  imports: [RouterLink, LucideAngularModule],
   templateUrl: './quest.html',
   styleUrl: './quest.scss',
 })
@@ -31,6 +36,7 @@ export class QuestComponent {
   private quizService = inject(QuizService);
   private scoreService = inject(ScoreService);
 
+  readonly icons = APP_ICONS;
   readonly categoryOptions = CATEGORY_OPTIONS;
 
   readonly state = signal<QuizState>('config');

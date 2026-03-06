@@ -1,16 +1,20 @@
-<div class="bugs">
+﻿<div class="bugs">
 
   <!-- LISTA -->
   @if (state() === 'list') {
     <section aria-labelledby="bugs-title">
       <header class="bugs__header">
-        <a routerLink="/home" class="back-link" aria-label="Voltar para o início">← Início</a>
+        <a routerLink="/home" class="back-link" aria-label="Voltar para o inicio">
+          <lucide-icon [img]="icons.ArrowLeft" [size]="16" aria-hidden="true"></lucide-icon>
+          Inicio
+        </a>
         <h1 id="bugs-title" class="bugs__title">
-          <span aria-hidden="true">🐛</span> Bug Hunt
+          <lucide-icon [img]="icons.Bug" [size]="28" aria-hidden="true"></lucide-icon>
+          Bug Hunt
         </h1>
-        <p class="bugs__subtitle">Identifique e corrija os bugs nos trechos de código</p>
+        <p class="bugs__subtitle">Identifique e corrija os bugs nos trechos de codigo</p>
         <p class="bugs__progress" aria-live="polite">
-          {{ totalCompleted() }} / {{ allChallenges.length }} concluídos nesta sessão
+          {{ totalCompleted() }} / {{ allChallenges.length }} concluidos nesta sessao
         </p>
       </header>
 
@@ -24,17 +28,21 @@
                 [class.challenge-item--done]="isCompleted(ch.id)"
                 (click)="openChallenge(ch)"
                 type="button"
-                [attr.aria-label]="ch.title + (isCompleted(ch.id) ? ' - concluído' : '')">
+                [attr.aria-label]="ch.title + (isCompleted(ch.id) ? ' - concluido' : '')">
                 <div class="challenge-item__left">
                   <span class="challenge-item__icon" aria-hidden="true">
-                    {{ isCompleted(ch.id) ? '✅' : '🔍' }}
+                    @if (isCompleted(ch.id)) {
+                      <lucide-icon [img]="icons.CheckCircle" [size]="18"></lucide-icon>
+                    } @else {
+                      <lucide-icon [img]="icons.HelpCircle" [size]="18"></lucide-icon>
+                    }
                   </span>
                   <div>
                     <p class="challenge-item__title">{{ ch.title }}</p>
                     <p class="challenge-item__desc">{{ ch.description }}</p>
                   </div>
                 </div>
-                <span class="challenge-item__arrow" aria-hidden="true">→</span>
+                <lucide-icon [img]="icons.ChevronRight" [size]="18" class="challenge-item__arrow" aria-hidden="true"></lucide-icon>
               </button>
             }
           </div>
@@ -49,7 +57,8 @@
       <section aria-labelledby="challenge-heading">
         <header class="bugs__playing-header">
           <button class="back-link" (click)="backToList()" type="button" aria-label="Voltar para a lista de bugs">
-            ← Lista
+            <lucide-icon [img]="icons.ArrowLeft" [size]="16" aria-hidden="true"></lucide-icon>
+            Lista
           </button>
           <span class="quest__category-tag">{{ categoryLabels[ch.category] }}</span>
         </header>
@@ -58,25 +67,28 @@
           <h2 id="challenge-heading" class="challenge-card__title">{{ ch.title }}</h2>
           <p class="challenge-card__desc">{{ ch.description }}</p>
 
-          <!-- CÓDIGO BUGADO -->
           <div class="code-section">
             <div class="code-section__header">
-              <span class="code-section__label">🐛 Código com Bug</span>
+              <span class="code-section__label">
+                <lucide-icon [img]="icons.Bug" [size]="14" aria-hidden="true"></lucide-icon>
+                Codigo com Bug
+              </span>
             </div>
-            <pre class="code-block code-block--buggy" role="region" aria-label="Código com bug"><code>{{ ch.buggyCode }}</code></pre>
+            <pre class="code-block code-block--buggy" role="region" aria-label="Codigo com bug"><code>{{ ch.buggyCode }}</code></pre>
           </div>
 
           @if (state() === 'playing') {
-            <!-- HINT -->
             <details class="hint-box">
-              <summary class="hint-box__summary">💡 Ver dica</summary>
+              <summary class="hint-box__summary">
+                <lucide-icon [img]="icons.Lightbulb" [size]="14" aria-hidden="true"></lucide-icon>
+                Ver dica
+              </summary>
               <p class="hint-box__text">{{ ch.hint }}</p>
             </details>
 
-            <!-- ÁREA DE RESPOSTA DO USUÁRIO -->
             <div class="answer-section">
               <label for="user-answer" class="answer-section__label">
-                Descreva o bug que você encontrou (ou escreva o código corrigido):
+                Descreva o bug que voce encontrou (ou escreva o codigo corrigido):
               </label>
               <textarea
                 id="user-answer"
@@ -84,7 +96,7 @@
                 [value]="userAnswer()"
                 (input)="updateAnswer($any($event.target).value)"
                 rows="6"
-                placeholder="Digite aqui sua análise do bug e/ou o código correto..."
+                placeholder="Digite aqui sua analise do bug e/ou o codigo correto..."
                 aria-required="true"></textarea>
             </div>
 
@@ -94,25 +106,30 @@
               type="button"
               [disabled]="userAnswer().trim().length === 0"
               [attr.aria-disabled]="userAnswer().trim().length === 0">
-              Revelar Solução
+              <lucide-icon [img]="icons.Eye" [size]="16" aria-hidden="true"></lucide-icon>
+              Revelar Solucao
             </button>
           }
 
           @if (state() === 'revealed') {
-            <!-- SOLUÇÃO -->
             <div class="code-section">
               <div class="code-section__header">
-                <span class="code-section__label code-section__label--fixed">✅ Código Correto</span>
+                <span class="code-section__label code-section__label--fixed">
+                  <lucide-icon [img]="icons.CheckCircle" [size]="14" aria-hidden="true"></lucide-icon>
+                  Codigo Correto
+                </span>
               </div>
-              <pre class="code-block code-block--fixed" role="region" aria-label="Código correto"><code>{{ ch.fixedCode }}</code></pre>
+              <pre class="code-block code-block--fixed" role="region" aria-label="Codigo correto"><code>{{ ch.fixedCode }}</code></pre>
             </div>
 
-            <div class="bug-explanation" role="region" aria-label="Explicação do bug">
-              <h3 class="bug-explanation__title">🔍 Qual era o Bug?</h3>
+            <div class="bug-explanation" role="region" aria-label="Explicacao do bug">
+              <h3 class="bug-explanation__title">
+                <lucide-icon [img]="icons.Eye" [size]="16" aria-hidden="true"></lucide-icon>
+                Qual era o Bug?
+              </h3>
               <p class="bug-explanation__text">{{ ch.bugDescription }}</p>
             </div>
 
-            <!-- SUA RESPOSTA -->
             @if (userAnswer().trim().length > 0) {
               <div class="your-answer" role="region" aria-label="Sua resposta">
                 <h3 class="your-answer__title">Sua Resposta</h3>
@@ -120,16 +137,17 @@
               </div>
             }
 
-            <!-- AUTOAVALIAÇÃO -->
             @if (selfEvalResult() === null) {
-              <div class="self-eval" role="region" aria-label="Autoavaliação">
-                <p class="self-eval__question">Você conseguiu identificar o bug corretamente?</p>
+              <div class="self-eval" role="region" aria-label="Autoavaliacao">
+                <p class="self-eval__question">Voce conseguiu identificar o bug corretamente?</p>
                 <div class="self-eval__buttons">
                   <button class="btn-correct" (click)="markResult(true)" type="button">
-                    ✓ Acertei
+                    <lucide-icon [img]="icons.ThumbsUp" [size]="16" aria-hidden="true"></lucide-icon>
+                    Acertei
                   </button>
                   <button class="btn-wrong" (click)="markResult(false)" type="button">
-                    ✗ Errei
+                    <lucide-icon [img]="icons.ThumbsDown" [size]="16" aria-hidden="true"></lucide-icon>
+                    Errei
                   </button>
                 </div>
               </div>
@@ -138,12 +156,19 @@
                 [class.self-eval-result--correct]="selfEvalResult()"
                 [class.self-eval-result--wrong]="!selfEvalResult()"
                 role="alert" aria-live="polite">
-                <p>{{ selfEvalResult() ? '🎉 Ótimo trabalho! Bug identificado com sucesso!' : '📚 Não tem problema! Revise a explicação e tente mais.' }}</p>
+                @if (selfEvalResult()) {
+                  <lucide-icon [img]="icons.Star" [size]="18" aria-hidden="true"></lucide-icon>
+                  <p>Otimo trabalho! Bug identificado com sucesso!</p>
+                } @else {
+                  <lucide-icon [img]="icons.BookOpen" [size]="18" aria-hidden="true"></lucide-icon>
+                  <p>Nao tem problema! Revise a explicacao e tente mais.</p>
+                }
               </div>
 
               <div class="challenge-actions">
                 <button class="btn-secondary" (click)="backToList()" type="button">
-                  ← Voltar para a Lista
+                  <lucide-icon [img]="icons.ArrowLeft" [size]="16" aria-hidden="true"></lucide-icon>
+                  Voltar para a Lista
                 </button>
               </div>
             }

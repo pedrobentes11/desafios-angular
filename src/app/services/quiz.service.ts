@@ -396,6 +396,254 @@ export class QuizService {
       explanation:
         '`withInterceptorsFromDi()` permite usar interceptors registrados via `{ provide: HTTP_INTERCEPTORS, useClass: ... }` no provideHttpClient().',
     },
+
+    // ─── RxJS ──────────────────────────────────────────────────
+    {
+      id: 31,
+      category: 'rxjs',
+      question: 'Qual operador RxJS transforma cada valor emitido em um novo Observable e "achata" o resultado?',
+      options: ['map()', 'switchMap()', 'filter()', 'tap()'],
+      correctIndex: 1,
+      explanation:
+        '`switchMap()` projeta cada valor em um Observable e cancela o Observable anterior se um novo valor chegar. Muito usado com requisições HTTP.',
+    },
+    {
+      id: 32,
+      category: 'rxjs',
+      question: 'Qual a diferença entre `switchMap` e `mergeMap`?',
+      options: [
+        'São idênticos',
+        '`switchMap` cancela a emissão anterior ao receber nova; `mergeMap` mantém todas em paralelo',
+        '`mergeMap` cancela as emissões anteriores; `switchMap` mantém em paralelo',
+        '`switchMap` só funciona com Promises',
+      ],
+      correctIndex: 1,
+      explanation:
+        '`switchMap` cancela a subscription anterior quando um novo valor chega (bom para buscas). `mergeMap` mantém todas as subscriptions ativas em paralelo.',
+    },
+    {
+      id: 33,
+      category: 'rxjs',
+      question: 'O que faz o operador `takeUntil()`?',
+      options: [
+        'Emite apenas o primeiro valor do Observable',
+        'Completa o Observable quando outro Observable notificador emitir um valor',
+        'Filtra valores até que uma condição seja verdadeira',
+        'Atrasa a emissão de valores por um tempo determinado',
+      ],
+      correctIndex: 1,
+      explanation:
+        '`takeUntil(notifier$)` é a forma idiomática de cancelar subscriptions no Angular, tipicamente usando um Subject que emite no `ngOnDestroy`.',
+    },
+    {
+      id: 34,
+      category: 'rxjs',
+      question: 'O que é um Subject no RxJS?',
+      options: [
+        'Um Observable que só emite um valor e completa',
+        'Um Observable que também é Observer: pode emitir valores e ser subscrito',
+        'Um operador que combina múltiplos Observables',
+        'Uma alternativa ao catchError para tratar erros',
+      ],
+      correctIndex: 1,
+      explanation:
+        'Um Subject é simultaneamente um Observable (pode ser subscrito) e um Observer (pode emitir valores via `.next()`). É "multicast" por padrão.',
+    },
+    {
+      id: 35,
+      category: 'rxjs',
+      question: 'O que `BehaviorSubject` tem de diferente de um `Subject` comum?',
+      options: [
+        'Não pode ter subscribers',
+        'Armazena o último valor emitido e o entrega imediatamente a novos subscribers',
+        'Só aceita valores do tipo boolean',
+        'Completa automaticamente após 1 segundo',
+      ],
+      correctIndex: 1,
+      explanation:
+        '`BehaviorSubject` requer um valor inicial e entrega o último valor emitido para qualquer novo subscriber imediatamente. Útil para estado compartilhado.',
+    },
+    {
+      id: 36,
+      category: 'rxjs',
+      question: 'O que o operador `debounceTime(300)` faz?',
+      options: [
+        'Emite o primeiro valor e ignora os próximos por 300ms',
+        'Atrasa cada emissão em 300ms independentemente',
+        'Emite um valor somente após 300ms de silêncio (sem novas emissões)',
+        'Cancela a subscription após 300ms',
+      ],
+      correctIndex: 2,
+      explanation:
+        '`debounceTime` espera um período de "silêncio" antes de emitir. Muito usado em campos de busca para não disparar a API a cada tecla pressionada.',
+    },
+    {
+      id: 37,
+      category: 'rxjs',
+      question: 'Qual operador RxJS serve para executar efeitos colaterais sem alterar os valores emitidos?',
+      options: ['map()', 'tap()', 'catchError()', 'filter()'],
+      correctIndex: 1,
+      explanation:
+        '`tap()` (antigo `do()`) executa efeitos colaterais como logging sem modificar o fluxo. Ideal para depuração e ações secundárias.',
+    },
+
+    // ─── SIGNALS ───────────────────────────────────────────────
+    {
+      id: 38,
+      category: 'signals',
+      question: 'Como se cria um Signal gravável no Angular?',
+      options: [
+        'const count = new Signal(0)',
+        'const count = signal(0)',
+        'const count = writable(0)',
+        'const count = ref(0)',
+      ],
+      correctIndex: 1,
+      explanation:
+        '`signal(valorInicial)` cria um `WritableSignal`. Para lê-lo usa-se `count()`, para atualizá-lo `count.set(novo)` ou `count.update(fn)`.',
+    },
+    {
+      id: 39,
+      category: 'signals',
+      question: 'Para que serve `computed()` no Angular?',
+      options: [
+        'Para criar um signal gravável baseado em outro',
+        'Para criar um signal somente leitura derivado de outros signals',
+        'Para executar efeitos colaterais quando um signal muda',
+        'Para converter um Observable em Signal',
+      ],
+      correctIndex: 1,
+      explanation:
+        '`computed(() => signal1() * 2)` cria um signal derivado que recalcula automaticamente quando suas dependências mudam. É sempre somente leitura.',
+    },
+    {
+      id: 40,
+      category: 'signals',
+      question: 'Qual a forma correta de atualizar um signal baseando-se no valor atual?',
+      options: [
+        'count.set(count() + 1)',
+        'count.update(v => v + 1)',
+        'Ambas estão corretas',
+        'count.mutate(v => v + 1)',
+      ],
+      correctIndex: 2,
+      explanation:
+        'Ambas funcionam: `set` recebe o novo valor diretamente, `update` recebe uma função que transforma o valor atual. `mutate` foi removido — não use.',
+    },
+    {
+      id: 41,
+      category: 'signals',
+      question: 'O que acontece se você chamar `count.mutate(fn)` no Angular moderno?',
+      options: [
+        'Funciona normalmente e atualiza o signal in-place',
+        'Gera um erro de compilação TypeScript pois `mutate` foi removido',
+        'Executa `fn` mas não notifica dependentes',
+        'Equivale a chamar `update`',
+      ],
+      correctIndex: 1,
+      explanation:
+        '`mutate` foi descontinuado e removido do Angular. A forma correta é usar `update` com uma cópia imutável do valor.',
+    },
+    {
+      id: 42,
+      category: 'signals',
+      question: 'O que `toSignal()` do Angular faz?',
+      options: [
+        'Converte um Signal em Observable',
+        'Converte um Observable em Signal, integrando o RxJS com a API de Signals',
+        'Cria um signal bidirecional',
+        'Transforma um Promise em Signal',
+      ],
+      correctIndex: 1,
+      explanation:
+        '`toSignal(observable$)` do `@angular/core/rxjs-interop` converte um Observable em Signal, gerenciando a subscription automaticamente.',
+    },
+
+    // ─── ANGULAR CORE ──────────────────────────────────────────
+    {
+      id: 43,
+      category: 'angular-core',
+      question: 'O que é `ChangeDetectionStrategy.OnPush` e qual seu benefício?',
+      options: [
+        'Executa a detecção de mudanças após cada evento do DOM',
+        'Limita a detecção de mudanças a inputs, eventos e signals/Observables marcados com async pipe',
+        'Desativa completamente a detecção de mudanças',
+        'Executa a detecção de mudanças em um worker separado',
+      ],
+      correctIndex: 1,
+      explanation:
+        'Com `OnPush`, o Angular só verifica o componente quando um `@Input` muda por referência, quando um evento interno ocorre, ou quando um signal/async pipe emite. Reduz muito o número de verificações.',
+    },
+    {
+      id: 44,
+      category: 'angular-core',
+      question: 'Qual é o ciclo de vida correto de um componente Angular (ordem)?',
+      options: [
+        'constructor → ngOnChanges → ngOnInit → ngAfterViewInit → ngOnDestroy',
+        'ngOnInit → constructor → ngOnChanges → ngOnDestroy',
+        'constructor → ngOnInit → ngOnChanges → ngAfterViewInit → ngOnDestroy',
+        'ngOnChanges → ngOnInit → constructor → ngOnDestroy',
+      ],
+      correctIndex: 0,
+      explanation:
+        'A ordem correta é: constructor (DI) → ngOnChanges (se tiver inputs) → ngOnInit → ngDoCheck → ngAfterContentInit → ngAfterViewInit → ngOnDestroy.',
+    },
+    {
+      id: 45,
+      category: 'angular-core',
+      question: 'O que é `inject()` no Angular e qual vantagem tem sobre injeção no construtor?',
+      options: [
+        'É apenas um alias para o construtor, sem diferença prática',
+        'Permite injetar dependências fora do construtor (em campos de classe, funções), facilitando composição e testes',
+        'Só funciona em serviços, não em componentes',
+        'É mais lento que a injeção por construtor',
+      ],
+      correctIndex: 1,
+      explanation:
+        '`inject()` pode ser chamado em campos de classe, factory functions e funções de contexto de injeção. Isso permite composição de lógica sem herança e facilita a criação de funções utilitárias reutilizáveis.',
+    },
+    {
+      id: 46,
+      category: 'angular-core',
+      question: 'Qual a diferença entre `ngOnInit` e o construtor de um componente Angular?',
+      options: [
+        'Não há diferença prática, ambos rodam uma vez',
+        'O construtor é chamado pelo DI antes dos inputs estarem disponíveis; `ngOnInit` roda depois que os inputs foram resolvidos',
+        '`ngOnInit` roda antes do construtor',
+        'O construtor tem acesso ao DOM, `ngOnInit` não',
+      ],
+      correctIndex: 1,
+      explanation:
+        'O construtor é para injeção de dependências. `ngOnInit` é o lugar certo para lógica de inicialização que depende de `@Input`, pois no construtor os inputs ainda não foram definidos.',
+    },
+    {
+      id: 47,
+      category: 'angular-core',
+      question: 'O que faz o `async` pipe no template Angular?',
+      options: [
+        'Converte um valor síncrono em assíncrono',
+        'Faz subscribe em um Observable/Promise e exibe o valor atual, cancelando a subscription ao destruir o componente',
+        'Aguarda uma Promise antes de renderizar o componente',
+        'Executa código assíncrono no template',
+      ],
+      correctIndex: 1,
+      explanation:
+        'O `async` pipe gerencia todo o ciclo de vida: faz subscribe, atualiza o template com cada novo valor e cancela o subscribe no `ngOnDestroy`, evitando memory leaks.',
+    },
+    {
+      id: 48,
+      category: 'angular-core',
+      question: 'O que é lazy loading de rotas no Angular e qual seu principal benefício?',
+      options: [
+        'Carrega todos os componentes no startup para evitar delay posterior',
+        'Carrega o código de um módulo/componente somente quando a rota é acessada, reduzindo o bundle inicial',
+        'Atrasa o carregamento de imagens na página',
+        'Cache dos componentes visitados para recarregar mais rápido',
+      ],
+      correctIndex: 1,
+      explanation:
+        'Com lazy loading (`loadComponent` ou `loadChildren`), o Angular gera chunks separados que são baixados somente quando o usuário navega para aquela rota, melhorando o tempo de carregamento inicial.',
+    },
   ];
 
   getAll(): QuizQuestion[] {

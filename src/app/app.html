@@ -1,7 +1,7 @@
-<nav class="navbar" aria-label="Navegação principal">
+<nav class="navbar" aria-label="NavegaÃ§Ã£o principal">
   <div class="navbar__inner">
-    <a routerLink="/home" class="navbar__brand" aria-label="Desafios Angular - Página inicial">
-      <span class="navbar__brand-icon" aria-hidden="true">?</span>
+    <a routerLink="/home" class="navbar__brand" aria-label="Desafios Angular - PÃ¡gina inicial">
+      <lucide-icon [img]="icons.Zap" [size]="20" class="navbar__brand-icon" aria-hidden="true"></lucide-icon>
       <span class="navbar__brand-text">Desafios Angular</span>
     </a>
 
@@ -12,6 +12,7 @@
           routerLinkActive="navbar__link--active"
           class="navbar__link"
           aria-label="Dashboard">
+          <lucide-icon [img]="icons.LayoutDashboard" [size]="16" aria-hidden="true"></lucide-icon>
           Dashboard
         </a>
       </li>
@@ -21,7 +22,8 @@
           routerLinkActive="navbar__link--active"
           class="navbar__link navbar__link--quiz"
           aria-label="Quiz de perguntas">
-          ?? Quiz
+          <lucide-icon [img]="icons.Target" [size]="16" aria-hidden="true"></lucide-icon>
+          Quiz
         </a>
       </li>
       <li>
@@ -30,7 +32,8 @@
           routerLinkActive="navbar__link--active"
           class="navbar__link navbar__link--bugs"
           aria-label="Desafios de bugs">
-          ?? Bug Hunt
+          <lucide-icon [img]="icons.Bug" [size]="16" aria-hidden="true"></lucide-icon>
+          Bug Hunt
         </a>
       </li>
     </ul>

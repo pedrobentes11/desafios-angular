@@ -5,17 +5,21 @@ import {
   inject,
 } from '@angular/core';
 import { RouterLink } from '@angular/router';
+import { LucideAngularModule } from 'lucide-angular';
 import { ScoreService } from '../../services/score.service';
+import { APP_ICONS } from '../../icons';
 
 @Component({
   selector: 'app-home',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [RouterLink],
+  imports: [RouterLink, LucideAngularModule],
   templateUrl: './home.html',
   styleUrl: './home.scss',
 })
 export class HomeComponent {
   private scoreService = inject(ScoreService);
+
+  readonly icons = APP_ICONS;
 
   readonly score = this.scoreService.score;
   readonly totalCorrect = this.scoreService.totalCorrect;
