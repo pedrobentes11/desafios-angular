@@ -1,1 +1,192 @@
-C:\Users\Micro
+<section class="home">
+  <header class="home__header">
+    <div class="home__header-content">
+      <h1 class="home__title">
+        <lucide-icon [img]="icons.Zap" class="home__title-icon" aria-hidden="true" [size]="32"></lucide-icon>
+        Desafios Angular
+      </h1>
+      <p class="home__subtitle">Aprenda Promises, Data Binding, HTTP, HttpClient, RxJS e Signals na pratica</p>
+    </div>
+  </header>
+
+  <div class="home__actions" role="navigation" aria-label="Secoes de desafios">
+    <a routerLink="/quest" class="action-card action-card--quiz" aria-label="Ir para o Quiz">
+      <div class="action-card__icon" aria-hidden="true">
+        <lucide-icon [img]="icons.Target" [size]="36"></lucide-icon>
+      </div>
+      <div class="action-card__body">
+        <h2 class="action-card__title">Quiz</h2>
+        <p class="action-card__desc">Responda perguntas de multipla escolha sobre Promises, Data Binding, HTTP, HttpClient, RxJS e Signals</p>
+        <span class="action-card__count">48 perguntas disponiveis</span>
+      </div>
+      <lucide-icon [img]="icons.ChevronRight" class="action-card__arrow" aria-hidden="true" [size]="22"></lucide-icon>
+    </a>
+
+    <a routerLink="/bugs" class="action-card action-card--bugs" aria-label="Ir para desafios de bugs">
+      <div class="action-card__icon" aria-hidden="true">
+        <lucide-icon [img]="icons.Bug" [size]="36"></lucide-icon>
+      </div>
+      <div class="action-card__body">
+        <h2 class="action-card__title">Bug Hunt</h2>
+        <p class="action-card__desc">Identifique e corrija bugs em trechos de codigo reais</p>
+        <span class="action-card__count">22 desafios disponiveis</span>
+      </div>
+      <lucide-icon [img]="icons.ChevronRight" class="action-card__arrow" aria-hidden="true" [size]="22"></lucide-icon>
+    </a>
+  </div>
+
+  @if (hasActivity()) {
+    <section class="dashboard" aria-label="Dashboard de progresso">
+      <h2 class="dashboard__title">
+        <lucide-icon [img]="icons.BarChart2" [size]="20" aria-hidden="true"></lucide-icon>
+        Seu Progresso
+      </h2>
+
+      <div class="dashboard__metrics" role="list">
+        <div class="metric-card metric-card--correct" role="listitem">
+          <lucide-icon [img]="icons.CheckCircle" class="metric-card__icon" [size]="20" aria-hidden="true"></lucide-icon>
+          <span class="metric-card__value">{{ totalCorrect() }}</span>
+          <span class="metric-card__label">Acertos no Quiz</span>
+        </div>
+        <div class="metric-card metric-card--incorrect" role="listitem">
+          <lucide-icon [img]="icons.XCircle" class="metric-card__icon" [size]="20" aria-hidden="true"></lucide-icon>
+          <span class="metric-card__value">{{ totalIncorrect() }}</span>
+          <span class="metric-card__label">Erros no Quiz</span>
+        </div>
+        <div class="metric-card metric-card--bugs" role="listitem">
+          <lucide-icon [img]="icons.ShieldAlert" class="metric-card__icon" [size]="20" aria-hidden="true"></lucide-icon>
+          <span class="metric-card__value">{{ totalBugsFound() }}</span>
+          <span class="metric-card__label">Bugs Encontrados</span>
+        </div>
+        <div class="metric-card metric-card--missed" role="listitem">
+          <lucide-icon [img]="icons.AlertTriangle" class="metric-card__icon" [size]="20" aria-hidden="true"></lucide-icon>
+          <span class="metric-card__value">{{ totalBugsMissed() }}</span>
+          <span class="metric-card__label">Bugs Perdidos</span>
+        </div>
+      </div>
+
+      <div class="accuracy-section">
+        <div class="accuracy-bar-group">
+          <div class="accuracy-bar-group__header">
+            <span class="accuracy-bar-group__label">
+              <lucide-icon [img]="icons.Target" [size]="14" aria-hidden="true"></lucide-icon>
+              Precisao no Quiz
+            </span>
+            <span class="accuracy-bar-group__percent">{{ accuracy() }}%</span>
+          </div>
+          <div class="accuracy-bar" role="progressbar" [attr.aria-valuenow]="accuracy()" aria-valuemin="0" aria-valuemax="100">
+            <div class="accuracy-bar__fill" [style.width.%]="accuracy()"></div>
+          </div>
+          <span class="accuracy-bar-group__detail">{{ totalAttempts() }} perguntas respondidas</span>
+        </div>
+        <div class="accuracy-bar-group">
+          <div class="accuracy-bar-group__header">
+            <span class="accuracy-bar-group__label">
+              <lucide-icon [img]="icons.Bug" [size]="14" aria-hidden="true"></lucide-icon>
+              Precisao nos Bugs
+            </span>
+            <span class="accuracy-bar-group__percent">{{ bugAccuracy() }}%</span>
+          </div>
+          <div class="accuracy-bar" role="progressbar" [attr.aria-valuenow]="bugAccuracy()" aria-valuemin="0" aria-valuemax="100">
+            <div class="accuracy-bar__fill accuracy-bar__fill--bugs" [style.width.%]="bugAccuracy()"></div>
+          </div>
+          <span class="accuracy-bar-group__detail">{{ totalBugAttempts() }} desafios tentados</span>
+        </div>
+      </div>
+
+      <div class="categories-section">
+        <h3 class="categories-section__title">
+          <lucide-icon [img]="icons.Layers" [size]="16" aria-hidden="true"></lucide-icon>
+          Por Categoria
+        </h3>
+        <div class="categories-grid" role="list">
+          @for (cat of categoryScores(); track cat.category) {
+            <div class="category-card" role="listitem">
+              <div class="category-card__header">
+                <span class="category-card__label">{{ cat.label }}</span>
+                <span class="category-card__percent"
+                  [class.category-card__percent--good]="getCategoryPercent(cat.correct, cat.incorrect) >= 60"
+                  [class.category-card__percent--bad]="getCategoryPercent(cat.correct, cat.incorrect) < 60 && (cat.correct + cat.incorrect) > 0">
+                  @if (cat.correct + cat.incorrect > 0) {
+                    {{ getCategoryPercent(cat.correct, cat.incorrect) }}%
+                  } @else {
+                    --
+                  }
+                </span>
+              </div>
+              <div class="category-card__bar" role="progressbar"
+                [attr.aria-valuenow]="getCategoryPercent(cat.correct, cat.incorrect)"
+                aria-valuemin="0" aria-valuemax="100">
+                <div class="category-card__fill"
+                  [style.width.%]="getCategoryPercent(cat.correct, cat.incorrect)"
+                  [class.category-card__fill--good]="getCategoryPercent(cat.correct, cat.incorrect) >= 60"
+                  [class.category-card__fill--bad]="getCategoryPercent(cat.correct, cat.incorrect) < 60 && (cat.correct + cat.incorrect) > 0">
+                </div>
+              </div>
+              <div class="category-card__stats">
+                <span class="category-card__correct">
+                  <lucide-icon [img]="icons.Check" [size]="12" aria-hidden="true"></lucide-icon>
+                  {{ cat.correct }}
+                </span>
+                <span class="category-card__incorrect">
+                  <lucide-icon [img]="icons.X" [size]="12" aria-hidden="true"></lucide-icon>
+                  {{ cat.incorrect }}
+                </span>
+              </div>
+            </div>
+          }
+        </div>
+      </div>
+
+      <div class="insights">
+        @if (strongCategories().length > 0) {
+          <div class="insight-box insight-box--strong" role="region" aria-label="Pontos fortes">
+            <h3 class="insight-box__title">
+              <lucide-icon [img]="icons.TrendingUp" [size]="18" aria-hidden="true"></lucide-icon>
+              Pontos Fortes
+            </h3>
+            <ul class="insight-box__list">
+              @for (cat of strongCategories(); track cat.category) {
+                <li>
+                  <lucide-icon [img]="icons.Star" [size]="13" aria-hidden="true"></lucide-icon>
+                  {{ cat.label }} ({{ getCategoryPercent(cat.correct, cat.incorrect) }}%)
+                </li>
+              }
+            </ul>
+          </div>
+        }
+        @if (weakCategories().length > 0) {
+          <div class="insight-box insight-box--weak" role="region" aria-label="Pontos fracos">
+            <h3 class="insight-box__title">
+              <lucide-icon [img]="icons.BookOpen" [size]="18" aria-hidden="true"></lucide-icon>
+              Precisa Praticar
+            </h3>
+            <ul class="insight-box__list">
+              @for (cat of weakCategories(); track cat.category) {
+                <li>
+                  <lucide-icon [img]="icons.TrendingDown" [size]="13" aria-hidden="true"></lucide-icon>
+                  {{ cat.label }} ({{ getCategoryPercent(cat.correct, cat.incorrect) }}%)
+                </li>
+              }
+            </ul>
+          </div>
+        }
+      </div>
+
+      <div class="dashboard__reset">
+        <button class="btn-reset" (click)="resetar()" type="button">
+          <lucide-icon [img]="icons.RotateCcw" [size]="15" aria-hidden="true"></lucide-icon>
+          Resetar Progresso
+        </button>
+      </div>
+    </section>
+  } @else {
+    <section class="empty-state" aria-label="Nenhuma atividade ainda">
+      <lucide-icon [img]="icons.BarChart2" class="empty-state__icon" [size]="56" aria-hidden="true"></lucide-icon>
+      <h2 class="empty-state__title">Comece agora!</h2>
+      <p class="empty-state__desc">
+        Seu dashboard aparecera aqui depois de responder perguntas ou resolver bugs.
+      </p>
+    </section>
+  }
+</section>

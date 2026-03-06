@@ -1,7 +1,7 @@
 $utf8NoBom = New-Object System.Text.UTF8Encoding $false
 
 # ── home.html ──────────────────────────────────────────────────────────────────
-$home = @"
+$homeContent = @"
 <section class="home">
   <header class="home__header">
     <div class="home__header-content">
@@ -195,7 +195,7 @@ $home = @"
   }
 </section>
 "@
-[System.IO.File]::WriteAllText("$PSScriptRoot\src\app\pages\home\home.html", $home, $utf8NoBom)
+[System.IO.File]::WriteAllText("$PSScriptRoot\src\app\pages\home\home.html", $homeContent, $utf8NoBom)
 Write-Host "home.html reescrito"
 
 # ── quest.html ─────────────────────────────────────────────────────────────────
