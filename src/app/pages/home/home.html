@@ -1,0 +1,165 @@
+<section class="home">
+  <header class="home__header">
+    <div class="home__header-content">
+      <h1 class="home__title">
+        <span class="home__title-icon" aria-hidden="true">🚀</span>
+        Desafios Angular
+      </h1>
+      <p class="home__subtitle">Aprenda Promises, Data Binding, HTTP e HttpClient na prática</p>
+    </div>
+  </header>
+
+  <!-- AÇÕES PRINCIPAIS -->
+  <div class="home__actions" role="navigation" aria-label="Seções de desafios">
+    <a routerLink="/quest" class="action-card action-card--quiz" aria-label="Ir para perguntas de múltipla escolha">
+      <div class="action-card__icon" aria-hidden="true">🎯</div>
+      <div class="action-card__body">
+        <h2 class="action-card__title">Quiz</h2>
+        <p class="action-card__desc">Responda perguntas de múltipla escolha sobre Promises, Data Binding, HTTP e HttpClient</p>
+        <span class="action-card__count">30 perguntas disponíveis</span>
+      </div>
+      <span class="action-card__arrow" aria-hidden="true">→</span>
+    </a>
+
+    <a routerLink="/bugs" class="action-card action-card--bugs" aria-label="Ir para desafios de bugs">
+      <div class="action-card__icon" aria-hidden="true">🐛</div>
+      <div class="action-card__body">
+        <h2 class="action-card__title">Bug Hunt</h2>
+        <p class="action-card__desc">Identifique e corrija bugs em trechos de código reais</p>
+        <span class="action-card__count">14 desafios disponíveis</span>
+      </div>
+      <span class="action-card__arrow" aria-hidden="true">→</span>
+    </a>
+  </div>
+
+  <!-- DASHBOARD -->
+  @if (hasActivity()) {
+    <section class="dashboard" aria-label="Dashboard de progresso">
+      <h2 class="dashboard__title">Seu Progresso</h2>
+
+      <!-- MÉTRICAS GERAIS -->
+      <div class="dashboard__metrics" role="list" aria-label="Métricas gerais">
+        <div class="metric-card metric-card--correct" role="listitem">
+          <span class="metric-card__value" aria-label="{{ totalCorrect() }} acertos no quiz">{{ totalCorrect() }}</span>
+          <span class="metric-card__label">Acertos no Quiz</span>
+        </div>
+        <div class="metric-card metric-card--incorrect" role="listitem">
+          <span class="metric-card__value" aria-label="{{ totalIncorrect() }} erros no quiz">{{ totalIncorrect() }}</span>
+          <span class="metric-card__label">Erros no Quiz</span>
+        </div>
+        <div class="metric-card metric-card--bugs" role="listitem">
+          <span class="metric-card__value" aria-label="{{ totalBugsFound() }} bugs encontrados">{{ totalBugsFound() }}</span>
+          <span class="metric-card__label">Bugs Encontrados</span>
+        </div>
+        <div class="metric-card metric-card--missed" role="listitem">
+          <span class="metric-card__value" aria-label="{{ totalBugsMissed() }} bugs perdidos">{{ totalBugsMissed() }}</span>
+          <span class="metric-card__label">Bugs Perdidos</span>
+        </div>
+      </div>
+
+      <!-- TAXAS DE ACERTO -->
+      <div class="accuracy-section">
+        <div class="accuracy-bar-group">
+          <div class="accuracy-bar-group__header">
+            <span class="accuracy-bar-group__label">Precisão no Quiz</span>
+            <span class="accuracy-bar-group__percent" aria-label="{{ accuracy() }}% de precisão no quiz">{{ accuracy() }}%</span>
+          </div>
+          <div class="accuracy-bar" role="progressbar" [attr.aria-valuenow]="accuracy()" aria-valuemin="0" aria-valuemax="100">
+            <div class="accuracy-bar__fill" [style.width.%]="accuracy()"></div>
+          </div>
+          <span class="accuracy-bar-group__detail">{{ totalAttempts() }} perguntas respondidas</span>
+        </div>
+
+        <div class="accuracy-bar-group">
+          <div class="accuracy-bar-group__header">
+            <span class="accuracy-bar-group__label">Precisão nos Bugs</span>
+            <span class="accuracy-bar-group__percent" aria-label="{{ bugAccuracy() }}% de precisão nos bugs">{{ bugAccuracy() }}%</span>
+          </div>
+          <div class="accuracy-bar" role="progressbar" [attr.aria-valuenow]="bugAccuracy()" aria-valuemin="0" aria-valuemax="100">
+            <div class="accuracy-bar__fill accuracy-bar__fill--bugs" [style.width.%]="bugAccuracy()"></div>
+          </div>
+          <span class="accuracy-bar-group__detail">{{ totalBugAttempts() }} desafios tentados</span>
+        </div>
+      </div>
+
+      <!-- POR CATEGORIA -->
+      <div class="categories-section">
+        <h3 class="categories-section__title">Por Categoria</h3>
+        <div class="categories-grid" role="list" aria-label="Pontuação por categoria">
+          @for (cat of categoryScores(); track cat.category) {
+            <div class="category-card" role="listitem">
+              <div class="category-card__header">
+                <span class="category-card__label">{{ cat.label }}</span>
+                <span class="category-card__percent" [class.category-card__percent--good]="getCategoryPercent(cat.correct, cat.incorrect) >= 60"
+                  [class.category-card__percent--bad]="getCategoryPercent(cat.correct, cat.incorrect) < 60 && (cat.correct + cat.incorrect) > 0">
+                  @if (cat.correct + cat.incorrect > 0) {
+                    {{ getCategoryPercent(cat.correct, cat.incorrect) }}%
+                  } @else {
+                    —
+                  }
+                </span>
+              </div>
+              <div class="category-card__bar" role="progressbar"
+                [attr.aria-valuenow]="getCategoryPercent(cat.correct, cat.incorrect)"
+                aria-valuemin="0" aria-valuemax="100"
+                [attr.aria-label]="cat.label + ': ' + getCategoryPercent(cat.correct, cat.incorrect) + '%'">
+                <div class="category-card__fill"
+                  [style.width.%]="getCategoryPercent(cat.correct, cat.incorrect)"
+                  [class.category-card__fill--good]="getCategoryPercent(cat.correct, cat.incorrect) >= 60"
+                  [class.category-card__fill--bad]="getCategoryPercent(cat.correct, cat.incorrect) < 60 && (cat.correct + cat.incorrect) > 0">
+                </div>
+              </div>
+              <div class="category-card__stats">
+                <span class="category-card__correct">✓ {{ cat.correct }}</span>
+                <span class="category-card__incorrect">✗ {{ cat.incorrect }}</span>
+              </div>
+            </div>
+          }
+        </div>
+      </div>
+
+      <!-- PONTOS FORTES E FRACOS -->
+      <div class="insights">
+        @if (strongCategories().length > 0) {
+          <div class="insight-box insight-box--strong" role="region" aria-label="Pontos fortes">
+            <h3 class="insight-box__title">
+              <span aria-hidden="true">💪</span> Pontos Fortes
+            </h3>
+            <ul class="insight-box__list">
+              @for (cat of strongCategories(); track cat.category) {
+                <li>{{ cat.label }} ({{ getCategoryPercent(cat.correct, cat.incorrect) }}%)</li>
+              }
+            </ul>
+          </div>
+        }
+
+        @if (weakCategories().length > 0) {
+          <div class="insight-box insight-box--weak" role="region" aria-label="Pontos fracos">
+            <h3 class="insight-box__title">
+              <span aria-hidden="true">📚</span> Precisa Praticar
+            </h3>
+            <ul class="insight-box__list">
+              @for (cat of weakCategories(); track cat.category) {
+                <li>{{ cat.label }} ({{ getCategoryPercent(cat.correct, cat.incorrect) }}%)</li>
+              }
+            </ul>
+          </div>
+        }
+      </div>
+
+      <div class="dashboard__reset">
+        <button class="btn-reset" (click)="resetar()" type="button">
+          Resetar Progresso
+        </button>
+      </div>
+    </section>
+  } @else {
+    <section class="empty-state" aria-label="Nenhuma atividade ainda">
+      <div class="empty-state__icon" aria-hidden="true">📊</div>
+      <h2 class="empty-state__title">Comece agora!</h2>
+      <p class="empty-state__desc">
+        Seu dashboard aparecerá aqui depois de responder perguntas ou resolver bugs.
+      </p>
+    </section>
+  }
+</section>

@@ -1,0 +1,169 @@
+<div class="quest">
+
+  <!-- CONFIG -->
+  @if (state() === 'config') {
+    <section class="quest__config" aria-labelledby="quest-title">
+      <header class="quest__header">
+        <a routerLink="/home" class="back-link" aria-label="Voltar para o início">← Início</a>
+        <h1 id="quest-title" class="quest__title">
+          <span aria-hidden="true">🎯</span> Quiz
+        </h1>
+        <p class="quest__subtitle">Responda perguntas sobre Angular e JavaScript</p>
+      </header>
+
+      <div class="config-card">
+        <label for="categoria" class="config-card__label">Escolha a categoria</label>
+        <select
+          id="categoria"
+          class="config-card__select"
+          (change)="setCategory($any($event.target).value)"
+          aria-label="Selecionar categoria do quiz">
+          @for (opt of categoryOptions; track opt.value) {
+            <option [value]="opt.value">{{ opt.label }}</option>
+          }
+        </select>
+
+        <p class="config-card__info">
+          Serão selecionadas até <strong>10 perguntas</strong> aleatórias da categoria escolhida.
+        </p>
+
+        <button class="btn-primary" (click)="startQuiz()" type="button">
+          Iniciar Quiz
+        </button>
+      </div>
+    </section>
+  }
+
+  <!-- PLAYING -->
+  @if (state() === 'playing') {
+    @if (currentQuestion(); as q) {
+      <section class="quest__playing" aria-labelledby="question-heading">
+        <header class="quest__playing-header">
+          <a routerLink="/home" class="back-link" aria-label="Voltar para o início">← Início</a>
+          <div class="quest__progress-info" aria-live="polite">
+            <span class="quest__counter">{{ currentIndex() + 1 }} / {{ questions().length }}</span>
+            <span class="quest__category-tag">{{ q.category }}</span>
+          </div>
+        </header>
+
+        <div class="progress-bar" role="progressbar"
+          [attr.aria-valuenow]="progress()"
+          aria-valuemin="0" aria-valuemax="100"
+          [attr.aria-label]="'Progresso: ' + progress() + '%'">
+          <div class="progress-bar__fill" [style.width.%]="progress()"></div>
+        </div>
+
+        <div class="question-card">
+          <h2 id="question-heading" class="question-card__text">{{ q.question }}</h2>
+
+          <div class="options" role="radiogroup" [attr.aria-labelledby]="'question-heading'">
+            @for (opt of q.options; track $index) {
+              <button
+                class="option"
+                [class]="getOptionClass($index)"
+                (click)="selectOption($index)"
+                [disabled]="showFeedback()"
+                type="button"
+                role="radio"
+                [attr.aria-checked]="selectedOption() === $index"
+                [attr.aria-label]="'Opção ' + ($index + 1) + ': ' + opt">
+                <span class="option__letter" aria-hidden="true">{{ ['A', 'B', 'C', 'D'][$index] }}</span>
+                <span class="option__text">{{ opt }}</span>
+                @if (showFeedback() && $index === q.correctIndex) {
+                  <span class="option__icon" aria-hidden="true">✓</span>
+                }
+                @if (showFeedback() && $index === selectedOption() && $index !== q.correctIndex) {
+                  <span class="option__icon" aria-hidden="true">✗</span>
+                }
+              </button>
+            }
+          </div>
+
+          @if (!showFeedback()) {
+            <button
+              class="btn-primary"
+              (click)="confirmAnswer()"
+              [disabled]="selectedOption() === null"
+              type="button"
+              [attr.aria-disabled]="selectedOption() === null">
+              Confirmar Resposta
+            </button>
+          }
+
+          @if (showFeedback()) {
+            <div class="feedback" [class.feedback--correct]="selectedOption() === q.correctIndex"
+              [class.feedback--wrong]="selectedOption() !== q.correctIndex"
+              role="alert" aria-live="assertive">
+              <p class="feedback__status">
+                {{ selectedOption() === q.correctIndex ? '✅ Correto!' : '❌ Incorreto' }}
+              </p>
+              <p class="feedback__explanation">{{ q.explanation }}</p>
+              <button class="btn-secondary" (click)="nextQuestion()" type="button">
+                {{ isLast() ? 'Ver Resultado' : 'Próxima →' }}
+              </button>
+            </div>
+          }
+        </div>
+      </section>
+    }
+  }
+
+  <!-- FINISHED -->
+  @if (state() === 'finished') {
+    <section class="quest__result" aria-labelledby="result-heading">
+      <header class="quest__header">
+        <a routerLink="/home" class="back-link" aria-label="Voltar para o início">← Início</a>
+        <h1 id="result-heading" class="quest__title">Resultado</h1>
+      </header>
+
+      <div class="result-summary">
+        <div class="result-summary__score" aria-label="{{ finalAccuracy() }}% de acerto">
+          <span class="result-summary__percent">{{ finalAccuracy() }}%</span>
+          <span class="result-summary__label">de acerto</span>
+        </div>
+
+        <p class="result-summary__message">{{ feedbackMessage() }}</p>
+
+        <div class="result-summary__stats">
+          <span class="result-summary__stat result-summary__stat--correct">
+            ✓ {{ correctCount() }} corretas
+          </span>
+          <span class="result-summary__stat result-summary__stat--wrong">
+            ✗ {{ incorrectCount() }} erradas
+          </span>
+        </div>
+      </div>
+
+      <!-- REVISÃO -->
+      <div class="result-review">
+        <h2 class="result-review__title">Revisão das Perguntas</h2>
+        @for (r of results(); track r.question.id) {
+          <div class="review-item" [class.review-item--correct]="r.correct" [class.review-item--wrong]="!r.correct">
+            <div class="review-item__header">
+              <span class="review-item__icon" aria-hidden="true">{{ r.correct ? '✅' : '❌' }}</span>
+              <span class="review-item__category">{{ r.question.category }}</span>
+            </div>
+            <p class="review-item__question">{{ r.question.question }}</p>
+            @if (!r.correct) {
+              <p class="review-item__wrong-answer">
+                <strong>Sua resposta:</strong> {{ r.question.options[r.selected] }}
+              </p>
+              <p class="review-item__correct-answer">
+                <strong>Correto:</strong> {{ r.question.options[r.question.correctIndex] }}
+              </p>
+            }
+            <p class="review-item__explanation">{{ r.question.explanation }}</p>
+          </div>
+        }
+      </div>
+
+      <div class="result-actions">
+        <button class="btn-primary" (click)="restart()" type="button">
+          Jogar Novamente
+        </button>
+        <a routerLink="/home" class="btn-secondary">Ver Dashboard</a>
+      </div>
+    </section>
+  }
+
+</div>
