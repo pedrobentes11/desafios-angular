@@ -1,37 +1,25 @@
-<nav class="navbar" aria-label="Navegação principal">
+<nav class="navbar" aria-label="Navegacao principal">
   <div class="navbar__inner">
-    <a routerLink="/home" class="navbar__brand" aria-label="Desafios Angular - Página inicial">
+    <a routerLink="/home" class="navbar__brand" aria-label="Desafios Angular - Pagina inicial">
       <lucide-icon [img]="icons.Zap" [size]="20" class="navbar__brand-icon" aria-hidden="true"></lucide-icon>
       <span class="navbar__brand-text">Desafios Angular</span>
     </a>
 
     <ul class="navbar__links" role="list">
       <li>
-        <a
-          routerLink="/home"
-          routerLinkActive="navbar__link--active"
-          class="navbar__link"
-          aria-label="Dashboard">
+        <a routerLink="/home" routerLinkActive="navbar__link--active" class="navbar__link" aria-label="Dashboard">
           <lucide-icon [img]="icons.LayoutDashboard" [size]="16" aria-hidden="true"></lucide-icon>
           Dashboard
         </a>
       </li>
       <li>
-        <a
-          routerLink="/quest"
-          routerLinkActive="navbar__link--active"
-          class="navbar__link navbar__link--quiz"
-          aria-label="Quiz de perguntas">
+        <a routerLink="/quest" routerLinkActive="navbar__link--active" class="navbar__link navbar__link--quiz" aria-label="Quiz de perguntas">
           <lucide-icon [img]="icons.Target" [size]="16" aria-hidden="true"></lucide-icon>
           Quiz
         </a>
       </li>
       <li>
-        <a
-          routerLink="/bugs"
-          routerLinkActive="navbar__link--active"
-          class="navbar__link navbar__link--bugs"
-          aria-label="Desafios de bugs">
+        <a routerLink="/bugs" routerLinkActive="navbar__link--active" class="navbar__link navbar__link--bugs" aria-label="Desafios de bugs">
           <lucide-icon [img]="icons.Bug" [size]="16" aria-hidden="true"></lucide-icon>
           Bug Hunt
         </a>

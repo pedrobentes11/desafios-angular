@@ -1,6 +1,5 @@
-﻿<div class="bugs">
+<div class="bugs">
 
-  <!-- LISTA -->
   @if (state() === 'list') {
     <section aria-labelledby="bugs-title">
       <header class="bugs__header">
@@ -51,12 +50,11 @@
     </section>
   }
 
-  <!-- DESAFIO ATIVO -->
   @if (state() === 'playing' || state() === 'revealed') {
     @if (currentChallenge(); as ch) {
       <section aria-labelledby="challenge-heading">
         <header class="bugs__playing-header">
-          <button class="back-link" (click)="backToList()" type="button" aria-label="Voltar para a lista de bugs">
+          <button class="back-link" (click)="backToList()" type="button" aria-label="Voltar para a lista">
             <lucide-icon [img]="icons.ArrowLeft" [size]="16" aria-hidden="true"></lucide-icon>
             Lista
           </button>
@@ -104,8 +102,7 @@
               class="btn-primary"
               (click)="revealSolution()"
               type="button"
-              [disabled]="userAnswer().trim().length === 0"
-              [attr.aria-disabled]="userAnswer().trim().length === 0">
+              [disabled]="userAnswer().trim().length === 0">
               <lucide-icon [img]="icons.Eye" [size]="16" aria-hidden="true"></lucide-icon>
               Revelar Solucao
             </button>
@@ -155,7 +152,7 @@
               <div class="self-eval-result"
                 [class.self-eval-result--correct]="selfEvalResult()"
                 [class.self-eval-result--wrong]="!selfEvalResult()"
-                role="alert" aria-live="polite">
+                role="alert">
                 @if (selfEvalResult()) {
                   <lucide-icon [img]="icons.Star" [size]="18" aria-hidden="true"></lucide-icon>
                   <p>Otimo trabalho! Bug identificado com sucesso!</p>
